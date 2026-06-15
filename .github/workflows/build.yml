@@ -17,10 +17,12 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
         with:
+          # full history is required so the action can inspect previous tags/commits
           fetch-depth: 0
 
       - name: "Create tag (SemVer from commits)"
-        uses: mathieudutour/github-tag-action@v6.2
+        # v6.2 pinned to commit SHA for supply-chain safety
+        uses: mathieudutour/github-tag-action@240a14f4aa23a19cfedad0c3738af05e2c6c973b
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # optional prefix (e.g., "v1.2.3")
