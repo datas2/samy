@@ -31,4 +31,4 @@ jobs:
 
       - name: "Build package"
         run: |
-           uv build
+          uv build
