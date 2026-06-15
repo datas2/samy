@@ -22,7 +22,7 @@ jobs:
 
       - name: "Create tag (SemVer from commits)"
         # v6.2 pinned to commit SHA for supply-chain safety
-        uses: mathieudutour/github-tag-action@240a14f4aa23a19cfedad0c3738af05e2c6c973b
+        uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # optional prefix (e.g., "v1.2.3")
