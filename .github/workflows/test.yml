@@ -29,7 +29,9 @@ jobs:
 
       - name: "Install project dependencies with uv"
         run: |
-          uv sync --all-extras --dev
+          # Sync dependencies as defined in pyproject.toml.
+          # We don't pass --all-extras/--dev because this project does not define those groups.
+          uv sync
 
       - name: "Run unit tests"
         run: |

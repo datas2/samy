@@ -23,5 +23,5 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # prefix opcional (ex.: "v1.2.3")
+          # optional prefix (e.g., "v1.2.3")
           tag_prefix: v

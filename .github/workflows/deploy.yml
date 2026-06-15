@@ -1,4 +1,4 @@
-name: "Build package on tag"
+name: "Deploy on tag"
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - "v*.*.*"   # run every time we create a semantic version tag
 
 jobs:
-  build-package:
-    name: "Build wheel and sdist with uv"
+  deploy:
+    name: "Prepare deploy for tagged release"
     runs-on: ubuntu-latest
 
     steps:
@@ -24,17 +24,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
 
-      - name: "Install project (for build tools, if any)"
+      - name: "Install project dependencies with uv"
         run: |
-          uv sync --all-extras --dev
+          # Install the project's dependencies as defined in pyproject.toml.
+          uv sync
 
-      - name: "Build package"
-        run: |
-          # Generate wheel and sdist in dist/
-          uv build
-
-      - name: "Upload artifacts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "dist-${{ github.ref_name }}"
-          path: dist/
+      # Placeholder: when pyproject.toml defines a [build-system] and build backend,
+      # you can enable a build step here, e.g.:
+      #
+      # - name: "Build package"
+      #   run: |
+      #     uv build
+      #
+      # and then upload artifacts or publish to a package index.
