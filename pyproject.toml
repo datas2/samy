@@ -11,4 +11,9 @@ dependencies = [
     "ollama>=0.6.2",
     "openai>=2.41.1",
     "pydantic>=2.13.4",
+    "pytest>=9.1.0",
 ]
+
+[buld-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
