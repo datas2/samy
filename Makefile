@@ -1,9 +1,15 @@
 install-uv:
 	pip install uv
 
-uv-init:
+init-uv:
 	uv init
 	uv sync
 
-uv-add-dependencies:
-	uv pip install -r pyproject.toml
+add-dependencies-uv:
+	uv sync
+
+run-uv:
+	uv run backend/main.py
+
+build-uv:
+	uv build
