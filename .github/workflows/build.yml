@@ -1,0 +1,27 @@
+name: "Auto tag on main"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  auto-tag:
+    name: "Generate semantic tag from conventional commits"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Create tag (SemVer from commits)"
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # prefix opcional (ex.: "v1.2.3")
+          tag_prefix: v
