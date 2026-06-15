@@ -6,7 +6,7 @@ init-uv:
 	uv sync
 
 add-dependencies-uv:
-	uv pip install -r pyproject.toml
+	uv sync
 
 run-uv:
 	uv run backend/main.py
