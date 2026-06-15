@@ -29,11 +29,6 @@ jobs:
           # Install the project's dependencies as defined in pyproject.toml.
           uv sync
 
-      # Placeholder: when pyproject.toml defines a [build-system] and build backend,
-      # you can enable a build step here, e.g.:
-      #
-      # - name: "Build package"
-      #   run: |
-      #     uv build
-      #
-      # and then upload artifacts or publish to a package index.
+      - name: "Build package"
+        run: |
+           uv build
