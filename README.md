@@ -8,6 +8,14 @@ Samy combines large language models, retrieval-augmented generation (RAG), and a
 
 The goal is not to replace engineers. The goal is to help engineers make better technical decisions faster.
 
+## Why Samy?
+
+Samy was named in honor of Samuel Silvio Vieira Amancio, father of Data S2 founder.
+
+Beyond technology, this project represents curiosity, learning, craftsmanship, and the belief that engineering is ultimately about helping people solve meaningful problems.
+
+Every line of code, every review, every optimization, and every improvement is part of that journey.
+
 ## Vision
 
 Modern AI assistants know a little about everything. Samy follows a different path.
@@ -71,10 +79,13 @@ Contributions, ideas, experiments, bug reports, architectural discussions, and i
 
 The project evolves through practical engineering challenges, research, and continuous experimentation.
 
-## Why Samy?
+## Contributing
 
-Samy was named in honor of Samuel Silvio Vieira Amancio, father of Data S2 founder.
+Contributions are welcome. If you find a bug, have an idea, or want to improve the code, you can:
 
-Beyond technology, this project represents curiosity, learning, craftsmanship, and the belief that engineering is ultimately about helping people solve meaningful problems.
+1. Open an issue describing the problem or proposal.
+2. Fork the repository and create a feature branch.
+3. Install dependencies with `uv sync` and run tests with `uv run pytest`.
+4. Open a pull request against the `master` branch.
 
-Every line of code, every review, every optimization, and every improvement is part of that journey.
+Please keep commits focused and include context in the PR description.
