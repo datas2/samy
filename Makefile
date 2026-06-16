@@ -26,3 +26,21 @@ run-tests:
 OLLAMA_MODEL ?= qwen3.1:latest
 run-ollama:
 	ollama run $(OLLAMA_MODEL)
+
+# docker
+build-docker:
+	docker build -t samy:latest .
+
+docker-up:
+	docker run -p 8000:8000 samy:latest
+
+docker-down:
+	docker stop $(docker ps -q --filter ancestor=samy:latest)
+
+docker-logs:
+	docker logs -f $(docker ps -q --filter ancestor=samy:latest)
+
+docker-clean:
+	docker rm -f $(docker ps -q --filter ancestor=samy:latest)
+
+docker-all: build-docker docker-up

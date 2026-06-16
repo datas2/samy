@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: samy-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      # Persist Ollama models locally
+      - ollama_models:/root/.ollama
+
+  samy:
+    build: .
+    container_name: samy-backend
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    environment:
+      
+      # Point Samy to the Ollama service
+      OLLAMA_BASE_URL: http://ollama:11434
+      
+      # Default model (can be overridden)
+      OLLAMA_MODEL: qwen3.1:latest
+    ports:
+      - "8000:8000"
+
+volumes:
+  ollama_models:
