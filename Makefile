@@ -9,7 +9,7 @@ add-dependencies-uv:
 	uv sync
 
 run-uv:
-	uv run backend/main.py
+	uv run uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 
 build-uv:
 	uv build
