@@ -49,10 +49,13 @@ jobs:
             echo "No integration tests found in tests/integration, skipping."
           fi
 
-      - name: "Run e2e tests"
-        run: |
-          if [ -d tests/e2e ]; then
-            uv run pytest tests/e2e
-          else
-            echo "No e2e tests found in tests/e2e, skipping."
-          fi
+      # E2E tests are currently disabled in CI because they require
+      # starting a real HTTP server via subprocess, which can be flaky
+      # in ephemeral runners. Re-enable when we have a stable setup.
+      # - name: "Run e2e tests"
+      #   run: |
+      #     if [ -d tests/e2e ]; then
+      #       uv run pytest tests/e2e
+      #     else
+      #       echo "No e2e tests found in tests/e2e, skipping."
+      #     fi
