@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from impoortlib.metadata import version
+from importlib.metadata import version
 
 from fastapi import FastAPI
 
