@@ -13,3 +13,7 @@ run-uv:
 
 build-uv:
 	uv build
+
+run-tests:
+	uv sync
+	uv run pytest tests/
