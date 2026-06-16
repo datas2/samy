@@ -10,7 +10,7 @@ client = TestClient(create_app())
 
 def test_full_flow_explain_review_optimize(monkeypatch) -> None:
     # Arrange: monkeypatch OllamaClient.chat to avoid real HTTP calls
-    from backend.llm import ollama_client as ollama_module
+    import backend.llm.ollama_client as ollama_module
 
     def fake_chat(messages):
         # Return different responses depending on the prompt context

@@ -9,7 +9,7 @@ client = TestClient(create_app())
 
 
 def test_optimize_with_code_returns_suggestions(monkeypatch) -> None:
-    from backend.llm import ollama_client as ollama_module
+    import backend.llm.ollama_client as ollama_module
 
     def fake_chat(messages):
         return "Fake optimization suggestions."

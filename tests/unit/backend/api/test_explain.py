@@ -10,7 +10,7 @@ client = TestClient(create_app())
 
 def test_explain_returns_explanation_text(monkeypatch) -> None:
     # Arrange: monkeypatch OllamaClient.chat to avoid real network calls
-    from backend.llm import ollama_client as ollama_module
+    import backend.llm.ollama_client as ollama_module
 
     def fake_chat(messages):
         return "Fake explanation from LLM."
@@ -30,7 +30,7 @@ def test_explain_returns_explanation_text(monkeypatch) -> None:
 
 
 def test_explain_without_code_is_conceptual(monkeypatch) -> None:
-    from backend.llm import ollama_client as ollama_module
+    import backend.llm.ollama_client as ollama_module
 
     def fake_chat(messages):
         return "Explanation without code."
