@@ -16,4 +16,6 @@ build-uv:
 
 run-tests:
 	uv sync
-	uv run pytest tests/
+	@if [ -d tests/unit ]; then uv run pytest tests/unit; else echo "No unit tests found in tests/unit, skipping."; fi
+	@if [ -d tests/integration ]; then uv run pytest tests/integration; else echo "No integration tests found in tests/integration, skipping."; fi
+	@if [ -d tests/e2e ]; then uv run pytest tests/e2e; else echo "No e2e tests found in tests/e2e, skipping."; fi
