@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from backend.llm.ollama_client import OllamaClient
+from backend.llm.prompts import build_explain_messages
 from backend.schemas.api import ExplainRequest, ExplainResponse
 
 router = APIRouter(prefix="/explain", tags=["explain"])
@@ -12,32 +14,26 @@ async def explain(request: ExplainRequest) -> ExplainResponse:
     """
     Explain a piece of code, SQL statement or architecture description.
 
-    This is a high-level API intended for clients such as editors or CLI tools
-    to obtain natural language explanations tailored to data/engineering contexts.
+    This endpoint calls the configured Ollama model with a specialized prompt
+    tailored for data/cloud engineering scenarios.
     """
-    # TODO: Integrate with the LLM engine (Ollama/OpenAI) and Samy RAG.
-    # Temporary/dummy implementation for contract testing:
-    explanation_parts: list[str] = []
+    # Build context dict compatible with prompts helper
+    ctx = None
+    if request.context:
+        ctx = {
+            "language": request.context.language or "",
+            "framework": request.context.framework or "",
+            "cloud_provider": request.context.cloud_provider or "",
+            "file_path": request.context.file_path or "",
+        }
 
-    if request.context and request.context.language:
-        explanation_parts.append(
-            f"Detected that the code is in {request.context.language}."
-        )
+    messages = build_explain_messages(
+        prompt=request.prompt,
+        code=request.code or "",
+        context=ctx,
+    )
 
-    if request.prompt:
-        explanation_parts.append(
-            f"Question/goal: {request.prompt.strip()}."
-        )
+    client = OllamaClient()
+    explanation_text = client.chat(messages)
 
-    if request.code.strip():
-        explanation_parts.append(
-            "Received a code snippet to explain. "
-            "In the final backend, this will be analyzed with the model."
-        )
-    else:
-        explanation_parts.append(
-            "No code was sent; the explanation will be purely conceptual."
-        )
-
-    explanation = "\n\n".join(explanation_parts) or "No sufficient information to explain."
-    return ExplainResponse(explanation=explanation)
+    return ExplainResponse(explanation=explanation_text or "No explanation generated.")
