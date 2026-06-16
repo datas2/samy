@@ -20,15 +20,21 @@ jobs:
           # full history is required so the action can inspect previous tags/commits
           fetch-depth: 0
 
-      - name: "Sync pyproject version with new tag"
+      - name: "Determine next tag (SemVer from commits)"
+        id: tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: v
+          dry_run: true               # só calcula, não cria/push a tag
+          skip_untagged_workflows: true
+
+      - name: "Sync pyproject version with next tag"
+        if: steps.tag.outputs.new_tag != ''
         run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No tags found, using version 0.0.1"
-            VER="0.0.1"
-          else
-            VER="${LATEST_TAG#v}"
-          fi
+          TAG="${{ steps.tag.outputs.new_tag }}"   # e.g., v0.0.2
+          VER="${TAG#v}"                           # 0.0.2
+          echo "Next tag will be: $TAG"
           echo "Updating pyproject.toml version to $VER"
 
           sed -i "s/^version = \".*\"/version = \"$VER\"/" pyproject.toml
@@ -41,11 +47,11 @@ jobs:
 
           git push origin HEAD:master
 
-      - name: "Create tag (SemVer from commits)"
-        # Using the published v6.2 tag for simplicity
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # optional prefix (e.g., "v1.2.3")
-          tag_prefix: v
-          skip_untagged_workflows: true
+      - name: "Create and push tag"
+        if: steps.tag.outputs.new_tag != ''
+        env:
+          NEW_TAG: ${{ steps.tag.outputs.new_tag }}
+        run: |
+          echo "Creating tag $NEW_TAG on latest commit"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
