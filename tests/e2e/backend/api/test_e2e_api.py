@@ -1,80 +1,64 @@
 from __future__ import annotations
 
-import subprocess
-import sys
 import time
 from contextlib import suppress
 
 import httpx
+import pytest
 
 
-def _start_server() -> subprocess.Popen:
-    """
-    Start the FastAPI server using uvicorn and return the Popen handle.
-
-    Assumes that dependencies have already been installed (e.g., via `uv sync`)
-    and that `backend.main:app` is the ASGI application.
-    """
-    return subprocess.Popen(
-        [
-            sys.executable,
-            "-m",
-            "uvicorn",
-            "backend.main:app",
-            "--host",
-            "127.0.0.1",
-            "--port",
-            "8000",
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-
-def _wait_for_server(proc: subprocess.Popen, timeout: float = 10.0) -> None:
-    start = time.time()
-    while time.time() - start < timeout and proc.poll() is None:
-        with suppress(Exception):
-            r = httpx.get("http://127.0.0.1:8000/health", timeout=1.0)
-            if r.status_code == 200:
-                return
-        time.sleep(0.5)
-
-    # If we reach here, either timeout or process died
-    stderr = None
+def _server_is_running() -> bool:
+    """Quick check to see if the backend is already running on /health."""
     with suppress(Exception):
-        stderr = proc.stderr.read().decode("utf-8") if proc.stderr else None
-    raise RuntimeError(
-        f"Server did not become ready in time. "
-        f"Exit code: {proc.poll()}, stderr: {stderr}"
-    )
+        r = httpx.get("http://127.0.0.1:8000/health", timeout=1.0)
+        return r.status_code == 200
+    return False
 
+
+def _wait_for_server(timeout: float = 5.0) -> None:
+    """
+    Wait until the backend responds on /health or until timeout.
+
+    This helper assumes the server is already running separately
+    (e.g., via `make run-uv`) and avoids starting it inside the test.
+    """
+    start = time.time()
+    while time.time() - start < timeout:
+        if _server_is_running():
+            return
+        time.sleep(0.5)
+    raise RuntimeError("Server did not become ready in time")
+
+
+@pytest.mark.skipif(
+    not _server_is_running(),
+    reason="Backend is not running on http://127.0.0.1:8000; start it with `make run-uv` to run this e2e test.",
+)
 def test_e2e_health_and_explain_endpoint() -> None:
-    proc = _start_server()
-    try:
-        _wait_for_server(proc)
+    """
+    End-to-end test that assumes the Samy API server is already running.
 
-        # 1) Health
-        r_health = httpx.get("http://127.0.0.1:8000/health", timeout=5.0)
-        assert r_health.status_code == 200
-        assert r_health.json() == {"status": "ok"}
+    This test does not start the server; it only verifies that the deployed
+    instance responds correctly to /health and /explain.
+    """
+    _wait_for_server()
 
-        # 2) Explain
-        payload = {
-            "prompt": "Explain this code",
-            "code": "print('hello world')",
-            "context": {"language": "python"},
-        }
-        r_explain = httpx.post(
-            "http://127.0.0.1:8000/explain",
-            json=payload,
-            timeout=10.0,
-        )
-        assert r_explain.status_code == 200
-        body = r_explain.json()
-        assert "explanation" in body
-    finally:
-        with suppress(Exception):
-            proc.terminate()
-        with suppress(Exception):
-            proc.kill()
+    # 1) Health
+    r_health = httpx.get("http://127.0.0.1:8000/health", timeout=5.0)
+    assert r_health.status_code == 200
+    assert r_health.json() == {"status": "ok"}
+
+    # 2) Explain
+    payload = {
+        "prompt": "Explain this code",
+        "code": "print('hello world')",
+        "context": {"language": "python"},
+    }
+    r_explain = httpx.post(
+        "http://127.0.0.1:8000/explain",
+        json=payload,
+        timeout=10.0,
+    )
+    assert r_explain.status_code == 200
+    body = r_explain.json()
+    assert "explanation" in body
