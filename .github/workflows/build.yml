@@ -45,7 +45,7 @@ jobs:
           git add pyproject.toml
           git commit -m "chore: bump version to $VER" || echo "No changes to commit"
 
-          git push origin HEAD:master
+          git push origin HEAD:${GITHUB_REF_NAME}
 
       - name: "Create and push tag"
         if: steps.tag.outputs.new_tag != ''
