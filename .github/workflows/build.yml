@@ -30,7 +30,7 @@ jobs:
           skip_untagged_workflows: true
 
       - name: "Sync pyproject version with next tag"
-        if: steps.tag.outputs.new_tag != ''
+        if: steps.tag.outputs.new_tag != '' && github.actor != 'github-actions[bot]'
         run: |
           TAG="${{ steps.tag.outputs.new_tag }}"   # e.g., v0.0.2
           VER="${TAG#v}"                           # 0.0.2
