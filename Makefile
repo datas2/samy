@@ -35,12 +35,30 @@ docker-up:
 	docker run -p 8000:8000 samy:latest
 
 docker-down:
-	docker stop $(docker ps -q --filter ancestor=samy:latest)
+	@CONTAINER_IDS=$$(docker ps -q --filter ancestor=samy:latest); \
+	if [ -n "$$CONTAINER_IDS" ]; then \
+		echo "Stopping containers: $$CONTAINER_IDS"; \
+		docker stop $$CONTAINER_IDS; \
+	else \
+		echo "No running containers for image samy:latest"; \
+	fi
 
 docker-logs:
-	docker logs -f $(docker ps -q --filter ancestor=samy:latest)
+	@CONTAINER_IDS=$$(docker ps -q --filter ancestor=samy:latest); \
+	if [ -n "$$CONTAINER_IDS" ]; then \
+		echo "Tailing logs for container $$CONTAINER_IDS"; \
+		docker logs -f $$CONTAINER_IDS; \
+	else \
+		echo "No running containers for image samy:latest"; \
+	fi
 
 docker-clean:
-	docker rm -f $(docker ps -q --filter ancestor=samy:latest)
+	@CONTAINER_IDS=$$(docker ps -aq --filter ancestor=samy:latest); \
+	if [ -n "$$CONTAINER_IDS" ]; then \
+		echo "Removing containers: $$CONTAINER_IDS"; \
+		docker rm -f $$CONTAINER_IDS; \
+	else \
+		echo "No containers found for image samy:latest"; \
+	fi
 
 docker-all: build-docker docker-up
