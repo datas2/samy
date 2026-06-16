@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 from fastapi import FastAPI
 
 from backend.api.routes import get_api_router
 
 APP_TITLE = "Samy API"
-APP_VERSION = version("samy")
+try:
+    APP_VERSION = version("samy")
+except PackageNotFoundError:
+    APP_VERSION = "0.0.0"
 
 
 def create_app() -> FastAPI:
