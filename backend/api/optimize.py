@@ -11,7 +11,7 @@ from backend.schemas.api import (
 router = APIRouter(prefix="/optimize", tags=["optimize"])
 
 
-@router.post("", response_model=OptimizeResponse, summary="Optimize code or queries")
+@router.post("/", response_model=OptimizeResponse, summary="Optimize code or queries")
 async def optimize_code(request: OptimizeRequest) -> OptimizeResponse:
     """
     Suggest optimizations for code, SQL or pipelines.

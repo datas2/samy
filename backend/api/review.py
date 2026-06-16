@@ -7,7 +7,7 @@ from backend.schemas.api import ReviewRequest, ReviewResponse, ReviewIssue
 router = APIRouter(prefix="/review", tags=["review"])
 
 
-@router.post("", response_model=ReviewResponse, summary="Review code")
+@router.post("/", response_model=ReviewResponse, summary="Review code")
 async def review_code(request: ReviewRequest) -> ReviewResponse:
     """
     Review a piece of code or SQL and return structured issues and suggestions.
