@@ -10,7 +10,7 @@ router = APIRouter(prefix="/explain", tags=["explain"])
 
 
 @router.post("/", response_model=ExplainResponse, summary="Explain code or architecture")
-async def explain(request: ExplainRequest) -> ExplainResponse:
+def explain(request: ExplainRequest) -> ExplainResponse:
     """
     Explain a piece of code, SQL statement or architecture description.
 

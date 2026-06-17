@@ -49,13 +49,18 @@ class OllamaClient:
         Returns:
             The content of the assistant's message as a string.
         """
-        payload: Dict[str, Any] = {
-            "model": self.model,
-            "messages": messages,
+        options: Dict[str, Any] = {
             "temperature": temperature,
         }
         if max_tokens is not None:
-            payload["max_tokens"] = max_tokens
+            options["num_predict"] = max_tokens
+
+        payload: Dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "stream": False,
+            "options": options,
+        }
 
         with httpx.Client(timeout=self._timeout) as client:
             resp = client.post(f"{self.base_url}/api/chat", json=payload)
