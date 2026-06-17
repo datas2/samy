@@ -45,8 +45,11 @@ def test_ollama_client_chat_builds_payload_and_returns_content(monkeypatch) -> N
     assert sent_payload["url"] == "http://fake-ollama:11434/api/chat"
     assert sent_payload["json"]["model"] == "fake-model"
     assert sent_payload["json"]["messages"] == messages
-    assert sent_payload["json"]["temperature"] == 0.5
-    assert sent_payload["json"]["max_tokens"] == 10
+    
+    # Options are sent under the "options" key in the payload
+    options = sent_payload["json"]["options"]
+    assert options["temperature"] == 0.5
+    assert options["num_predict"] == 10
 
 
 def test_ollama_client_embeddings_returns_vector(monkeypatch) -> None:
