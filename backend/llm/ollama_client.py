@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-import os
+import httpx
+
 from typing import Any, Dict, List, Optional
 
-import httpx
+from backend.core.config import load_settings
+from backend.core.logger import get_logger
 
 
 class OllamaClient:
@@ -24,12 +26,34 @@ class OllamaClient:
         model: str | None = None,
         timeout: float = 60.0,
     ) -> None:
-        env_base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-        env_model = os.getenv("OLLAMA_MODEL", "qwen3.1:latest")
+        """Initialize an OllamaClient with configurable base URL, model and timeout.
 
-        self.base_url = (base_url or env_base_url).rstrip("/")
-        self.model = model or env_model
+        This constructor reads defaults from the application settings (which in turn
+        read environment variables) when explicit values are not provided, allowing
+        different deployments to choose models and endpoints without code changes.
+
+        Args:
+            base_url: Base URL of the Ollama server (e.g., "http://127.0.0.1:11434").
+            model: Name of the Ollama model to use (e.g., "qwen3.1:latest" or "gemma2:latest").
+            timeout: Request timeout in seconds for HTTP calls to Ollama.
+
+        Raises:
+            ValueError: If base_url or model are not provided and cannot be resolved from settings.
+        """
+        settings = load_settings()
+
+        resolved_base_url = base_url or (settings.ollama.base_url if settings.ollama else None)
+        resolved_model = model or (settings.ollama.model if settings.ollama else None)
+
+        if not resolved_base_url:
+            raise ValueError("base_url must be provided or set via OLLAMA_BASE_URL environment variable")
+        if not resolved_model:
+            raise ValueError("model must be provided or set via OLLAMA_MODEL environment variable")
+
+        self.base_url = resolved_base_url.rstrip("/")
+        self.model = resolved_model
         self._timeout = timeout
+        self._logger = get_logger("samy.llm.ollama")
 
     def chat(
         self,
@@ -63,6 +87,10 @@ class OllamaClient:
         }
 
         with httpx.Client(timeout=self._timeout) as client:
+            self._logger.debug(
+                "Calling Ollama chat",
+                extra={"base_url": self.base_url, "model": self.model}
+            )
             resp = client.post(f"{self.base_url}/api/chat", json=payload)
             resp.raise_for_status()
             data = resp.json()
@@ -87,6 +115,10 @@ class OllamaClient:
         }
 
         with httpx.Client(timeout=self._timeout) as client:
+            self._logger.debug(
+                "Calling Ollama embeddings",
+                extra={"base_url": self.base_url, "model": self.model}
+            )
             resp = client.post(f"{self.base_url}/api/embeddings", json=payload)
             resp.raise_for_status()
             data = resp.json()

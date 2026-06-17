@@ -1,0 +1,17 @@
+version: 2
+
+updates:
+  # Python dependencies managed via uv/pyproject.toml
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Dependabot will look at pyproject.toml / requirements*.txt
+    open-pull-requests-limit: 10
+
+  # GitHub Actions workflows in .github/workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
