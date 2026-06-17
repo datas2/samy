@@ -14,7 +14,7 @@ def _get_log_level_from_env() -> int:
     Returns:
         int: Logging level constant from the logging module.
     """
-    level_str = os.getenv(constants.ENV_SAMY_LOG_LEVEL, constants.DEFAULT_LOG_LEVEL).upper()
+    level_str = os.getenv(constants.ENV_SAMY_LOG_LEVEL, constants.DEFAULT_LOG_LEVEL).strip().upper()
     return getattr(logging, level_str, logging.INFO)
 
 

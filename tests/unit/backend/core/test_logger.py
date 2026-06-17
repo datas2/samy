@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 import backend.core.constants as constants
 from backend.core.logger import _get_log_level_from_env, get_logger

@@ -15,19 +15,16 @@ except PackageNotFoundError:
     APP_VERSION = "0.0.0"
 
 logger = get_logger("samy.app")
-settings = load_settings()
 
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application for Samy."""
+    settings = load_settings()
+    
     logger.info(
-        "Starting Samy API",
-        extra={
-            "version": APP_VERSION,
-            "env": settings.env,
-            "ollama_base_url": settings.ollama.base_url if settings.ollama else None,
-            "ollama_model": settings.ollama.model if settings.ollama else None,
-        },
+        f"Starting Samy API - version={APP_VERSION}, env={settings.env}, "
+        f"ollama_base_url={settings.ollama.base_url if settings.ollama else None}, "
+        f"ollama_model={settings.ollama.model if settings.ollama else None}"
     )
 
     app = FastAPI(title=APP_TITLE, version=APP_VERSION)
