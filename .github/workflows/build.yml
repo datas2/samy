@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # full history is required so the action can inspect previous tags/commits
           fetch-depth: 0
