@@ -36,11 +36,19 @@ class OllamaClient:
             base_url: Base URL of the Ollama server (e.g., "http://127.0.0.1:11434").
             model: Name of the Ollama model to use (e.g., "qwen3.1:latest" or "gemma2:latest").
             timeout: Request timeout in seconds for HTTP calls to Ollama.
+
+        Raises:
+            ValueError: If base_url or model are not provided and cannot be resolved from settings.
         """
         settings = load_settings()
 
-        resolved_base_url = base_url or (settings.ollama.base_url if settings.ollama else "")
-        resolved_model = model or (settings.ollama.model if settings.ollama else "")
+        resolved_base_url = base_url or (settings.ollama.base_url if settings.ollama else None)
+        resolved_model = model or (settings.ollama.model if settings.ollama else None)
+
+        if not resolved_base_url:
+            raise ValueError("base_url must be provided or set via OLLAMA_BASE_URL environment variable")
+        if not resolved_model:
+            raise ValueError("model must be provided or set via OLLAMA_MODEL environment variable")
 
         self.base_url = resolved_base_url.rstrip("/")
         self.model = resolved_model
@@ -81,7 +89,7 @@ class OllamaClient:
         with httpx.Client(timeout=self._timeout) as client:
             self._logger.debug(
                 "Calling Ollama chat",
-                extra={"base_url": self.base_url, "model": self.model},
+                extra={"base_url": self.base_url, "model": self.model}
             )
             resp = client.post(f"{self.base_url}/api/chat", json=payload)
             resp.raise_for_status()
@@ -109,7 +117,7 @@ class OllamaClient:
         with httpx.Client(timeout=self._timeout) as client:
             self._logger.debug(
                 "Calling Ollama embeddings",
-                extra={"base_url": self.base_url, "model": self.model},
+                extra={"base_url": self.base_url, "model": self.model}
             )
             resp = client.post(f"{self.base_url}/api/embeddings", json=payload)
             resp.raise_for_status()
