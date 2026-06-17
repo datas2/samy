@@ -1,6 +1,6 @@
 [project]
 name = "samy"
-version = "0.0.1"
+version = "0.0.5"
 description = "AI assistant built for Data, Cloud and Analytics"
 readme = "README.md"
 requires-python = ">=3.12"

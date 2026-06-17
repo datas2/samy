@@ -58,6 +58,27 @@ The recommended workflow consists of cloning the repository, installing dependen
 
 The project is designed to run locally with minimal infrastructure requirements.
 
+### Choosing the LLM model (OLLAMA_MODEL)
+
+Samy uses Ollama as the local model runtime, and the default model is configured via environment variables. By default, the backend uses `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL=qwen3.1:latest`, but you can override these values without changing the code.
+
+For example, to run Samy with Qwen 3 as the default model:
+
+```bash
+export OLLAMA_MODEL=qwen3.1:latest
+make run-ollama        # optional: download/run the model in Ollama
+make run-uv            # start the FastAPI backend
+````
+
+To switch to a different model, such as Gemma:
+```bash
+export OLLAMA_MODEL=gemma2:latest
+make run-ollama
+make run-uv
+```
+
+The backend will automatically pick up the configured `OLLAMA_MODEL` for all `/explain`, `/review`, `/optimize` and embedding calls.
+
 ## Deployment
 
 Samy can be deployed as a standalone container and executed on platforms such as Google Cloud Run.
