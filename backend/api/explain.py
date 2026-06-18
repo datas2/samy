@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.prompts import build_explain_messages
+from backend.rag.retriever import KnowledgeRetriever
 from backend.schemas.api import ExplainRequest, ExplainResponse
 
 router = APIRouter(prefix="/explain", tags=["explain"])
@@ -27,10 +28,16 @@ def explain(request: ExplainRequest) -> ExplainResponse:
             "file_path": request.context.file_path or "",
         }
 
+    # RAG: retrieve relevant knowledge based on prompt + code
+    retriever = KnowledgeRetriever()
+    query_text = f"{request.prompt}\n\n{request.code or ''}"
+    knowledge_hits = retriever.retrieve(query=query_text, k=5)
+
     messages = build_explain_messages(
         prompt=request.prompt,
         code=request.code or "",
         context=ctx,
+        retrieved_context=knowledge_hits,
     )
 
     client = OllamaClient()

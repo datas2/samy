@@ -9,8 +9,9 @@ client = TestClient(create_app())
 
 
 def test_full_flow_explain_review_optimize(monkeypatch) -> None:
-    # Arrange: monkeypatch OllamaClient.chat to avoid real HTTP calls
+    # Arrange: monkeypatch OllamaClient and VectorStore to avoid real HTTP calls
     import backend.llm.ollama_client as ollama_module
+    from backend.rag import vector_store as vector_store_module
 
     def fake_chat(messages):
         # Return different responses depending on the prompt context
@@ -23,7 +24,21 @@ def test_full_flow_explain_review_optimize(monkeypatch) -> None:
             return "Integration: fake optimization."
         return "Integration: generic response."
 
+    # Mock LLM chat
     monkeypatch.setattr(ollama_module.OllamaClient, "chat", lambda self, messages: fake_chat(messages))
+    # Mock LLM embeddings (used by embed_text → OllamaClient.embeddings)
+    monkeypatch.setattr(ollama_module.OllamaClient, "embeddings", lambda self, text: [0.1, 0.2])
+
+    # Mock VectorStore to avoid real Chroma calls
+    class DummyVectorStore:
+        def query(self, *, query_text: str, k: int = 5):
+            return [
+                {"content": "rag snippet", "source": "doc.md", "offset": 0},
+            ]
+
+    monkeypatch.setattr(
+        vector_store_module, "VectorStore", lambda collection_name="samy_knowledge": DummyVectorStore()
+    )
 
     # 1) Health
     health_resp = client.get("/health")

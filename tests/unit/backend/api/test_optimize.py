@@ -10,11 +10,23 @@ client = TestClient(create_app())
 
 def test_optimize_with_code_returns_suggestions(monkeypatch) -> None:
     import backend.llm.ollama_client as ollama_module
+    from backend.rag import vector_store as vector_store_module
 
     def fake_chat(messages):
         return "Fake optimization suggestions."
 
     monkeypatch.setattr(ollama_module.OllamaClient, "chat", lambda self, messages: fake_chat(messages))
+    monkeypatch.setattr(ollama_module.OllamaClient, "embeddings", lambda self, text: [0.1, 0.2])
+
+    class DummyVectorStore:
+        def query(self, *, query_text: str, k: int = 5):
+            return [
+                {"content": "rag snippet", "source": "doc.md", "offset": 0},
+            ]
+
+    monkeypatch.setattr(
+        vector_store_module, "VectorStore", lambda collection_name="samy_knowledge": DummyVectorStore()
+    )
 
     payload = {
         "code": "SELECT * FROM big_table;",

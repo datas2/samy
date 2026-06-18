@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from backend.llm.ollama_client import OllamaClient
 from backend.llm.prompts import build_review_messages
+from backend.rag.retriever import KnowledgeRetriever
 from backend.schemas.api import ReviewRequest, ReviewResponse, ReviewIssue
 
 router = APIRouter(prefix="/review", tags=["review"])
@@ -31,10 +32,15 @@ def review_code(request: ReviewRequest) -> ReviewResponse:
             "cloud_provider": request.context.cloud_provider or "",
         }
 
+    retriever = KnowledgeRetriever()
+    query_text = f"{request.goal or ''}\n\n{request.code}"
+    knowledge_hits = retriever.retrieve(query=query_text, k=5)
+
     messages = build_review_messages(
         code=request.code,
         goal=request.goal,
         context=ctx,
+        retrieved_context=knowledge_hits,
     )
 
     client = OllamaClient()

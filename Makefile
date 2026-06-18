@@ -21,6 +21,11 @@ run-tests:
 	@if [ -d tests/integration ]; then uv run pytest tests/integration; else echo "No integration tests found in tests/integration, skipping."; fi
 	@if [ -d tests/e2e ]; then uv run pytest tests/e2e; else echo "No e2e tests found in tests/e2e, skipping."; fi
 
+
+ingest-knowledge:
+	uv run python -c "from backend.rag.ingest import ingest_knowledge_directory; ingest_knowledge_directory('knowledge')"
+
+
 # ollama
 # Default model used by Samy via OLLAMA_MODEL (can be overridden).
 OLLAMA_MODEL ?= qwen3.1:latest
