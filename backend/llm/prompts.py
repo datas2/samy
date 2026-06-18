@@ -8,6 +8,7 @@ def build_explain_messages(
     prompt: str,
     code: str,
     context: Dict[str, str] | None = None,
+    retrieved_context: List[Dict[str, str]] | None = None,
 ) -> List[Dict[str, str]]:
     """
     Build chat messages for the explain endpoint.
@@ -33,9 +34,20 @@ def build_explain_messages(
 
     context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
+    # Build RAG context block if provided
+    rag_block_lines: list[str] = []
+    if retrieved_context:
+        rag_block_lines.append("Relevant knowledge snippets:")
+        rag_block_lines.extend(
+            f"[{idx}] Source: {item.get('source')} | Offset: {item.get('offset')}\n{item.get('content')}"
+            for idx, item in enumerate(retrieved_context, start=1)
+        )
+    rag_block = "\n\n".join(rag_block_lines) if rag_block_lines else "No retrieved knowledge."
+
     user_content = (
         f"User question:\n{prompt.strip()}\n\n"
         f"Context:\n{context_block}\n\n"
+        f"Retrieved knowledge:\n{rag_block}\n\n"
         f"Code snippet (if any):\n{code.strip() or '[no code provided]'}\n\n"
         "Please explain what this does and any important considerations "
         "(performance, readability, correctness, security)."
@@ -52,6 +64,7 @@ def build_review_messages(
     code: str,
     goal: str | None,
     context: Dict[str, str] | None = None,
+    retrieved_context: List[Dict[str, str]] | None = None,
 ) -> List[Dict[str, str]]:
     """
     Build chat messages for the review endpoint.
@@ -76,9 +89,19 @@ def build_review_messages(
 
     context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
+    rag_block_lines: list[str] = []
+    if retrieved_context:
+        rag_block_lines.append("Relevant knowledge snippets:")
+        rag_block_lines.extend(
+            f"[{idx}] Source: {item.get('source')} | Offset: {item.get('offset')}\n{item.get('content')}"
+            for idx, item in enumerate(retrieved_context, start=1)
+        )
+    rag_block = "\n\n".join(rag_block_lines) if rag_block_lines else "No retrieved knowledge."
+
     user_content = (
         f"Review goal: {goal_str}\n\n"
         f"Context:\n{context_block}\n\n"
+        f"Retrieved knowledge:\n{rag_block}\n\n"
         f"Code to review:\n{code}\n\n"
         "Provide a short summary of the main issues and list concrete suggestions. "
         "Respond in plain text; bullet lists are welcome."
@@ -95,6 +118,7 @@ def build_optimize_messages(
     code: str,
     objective: str | None,
     context: Dict[str, str] | None = None,
+    retrieved_context: List[Dict[str, str]] | None = None,
 ) -> List[Dict[str, str]]:
     """
     Build chat messages for the optimize endpoint.
@@ -119,9 +143,19 @@ def build_optimize_messages(
 
     context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
+    rag_block_lines: list[str] = []
+    if retrieved_context:
+        rag_block_lines.append("Relevant knowledge snippets:")
+        rag_block_lines.extend(
+            f"[{idx}] Source: {item.get('source')} | Offset: {item.get('offset')}\n{item.get('content')}"
+            for idx, item in enumerate(retrieved_context, start=1)
+        )
+    rag_block = "\n\n".join(rag_block_lines) if rag_block_lines else "No retrieved knowledge."
+
     user_content = (
         f"Optimization objective: {obj_str}\n\n"
         f"Context:\n{context_block}\n\n"
+        f"Retrieved knowledge:\n{rag_block}\n\n"
         f"Code or SQL to optimize:\n{code}\n\n"
         "List specific optimization suggestions and, when possible, show before/after "
         "examples. Focus on realistic improvements for production workloads."
