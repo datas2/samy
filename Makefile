@@ -28,9 +28,22 @@ ingest-knowledge:
 
 # ollama
 # Default model used by Samy via OLLAMA_MODEL (can be overridden).
-OLLAMA_MODEL ?= qwen3.1:latest
+# Certify that this model exists in your Ollama (use `ollama list`).
+OLLAMA_MODEL ?= qwen2.5-coder:3b
+
 run-ollama:
-	ollama run $(OLLAMA_MODEL)
+	@echo "Starting Ollama server (ensure the model $(OLLAMA_MODEL) exists)..."
+	@echo "In another terminal, run: 'ollama run $(OLLAMA_MODEL)' if needed."
+	ollama serve
+
+run-pull-ollama:
+	@echo "Pulling model $(OLLAMA_MODEL) from Ollama registry..."
+	ollama pull $(OLLAMA_MODEL)
+
+run-samy-with-ollama:
+	@echo "Running Samy with Ollama at http://127.0.0.1:11434 using model $(OLLAMA_MODEL)"
+	@export OLLAMA_BASE_URL=http://127.0.0.1:11434; export OLLAMA_MODEL=$(OLLAMA_MODEL); \
+	make run-uv
 
 # docker
 build-docker:
@@ -67,3 +80,15 @@ docker-clean:
 	fi
 
 docker-all: build-docker docker-up
+
+docker-samy-ollama:
+	docker exec -it samy-ollama bash
+	ollama pull $(OLLAMA_MODEL)
+	ollama run $(OLLAMA_MODEL)
+
+# docker-compose
+docker-compose-up:
+	docker-compose up --build
+
+docker-compose-down:
+	docker-compose down
