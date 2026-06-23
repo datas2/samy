@@ -29,8 +29,7 @@ ingest-knowledge:
 # ollama
 # Default model used by Samy via OLLAMA_MODEL (can be overridden).
 # Certify that this model exists in your Ollama (use `ollama list`).
-OLLAMA_MODEL ?= qwen2.5-coder:3b
-
+OLLAMA_MODEL ?= codegemma:7b
 run-ollama:
 	@echo "Starting Ollama server (ensure the model $(OLLAMA_MODEL) exists)..."
 	@echo "In another terminal, run: 'ollama run $(OLLAMA_MODEL)' if needed."
