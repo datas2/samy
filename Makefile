@@ -28,7 +28,7 @@ ingest-knowledge:
 
 # ollama
 # Default model used by Samy via OLLAMA_MODEL (can be overridden).
-OLLAMA_MODEL ?= qwen3.1:latest
+OLLAMA_MODEL ?=codegemma:7b
 run-ollama:
 	ollama run $(OLLAMA_MODEL)
 
