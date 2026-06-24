@@ -28,7 +28,12 @@ def backup_sqlite_db(
     if not db_path.exists():
         raise FileNotFoundError(f"Database file not found at {db_path}")
 
-    shutil.copy2(db_path, backup_path)
+    import sqlite3
+    with (
+        sqlite3.connect(str(db_path)) as source_conn,
+        sqlite3.connect(str(backup_path)) as backup_conn,
+    ):
+        source_conn.backup(backup_conn)
     return backup_path
 
 

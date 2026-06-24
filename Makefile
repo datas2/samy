@@ -96,15 +96,6 @@ docker-clean:
 
 docker-all: build-docker docker-up
 
-docker-sync-knowledge:
-	docker exec -it samy-backend uv run python scripts/sync_knowledge.py
-
-docker-build-embeddings:
-	docker exec -it samy-backend uv run python scripts/build_embeddings.py
-
-docker-backup-db:
-	docker exec -it samy-backend uv run python scripts/backup_db.py
-
 # ---------------------------------------------------------------------------
 # Docker Compose (Samy + Ollama)
 # ---------------------------------------------------------------------------
@@ -118,3 +109,12 @@ docker-compose-down:
 # Helper to open a shell in the Ollama container (for manual pulls)
 docker-ollama-shell:
 	docker exec -it samy-ollama bash
+
+docker-compose-sync-knowledge:
+	docker exec -it samy-backend uv run python scripts/sync_knowledge.py
+
+docker-compose-build-embeddings:
+	docker exec -it samy-backend uv run python scripts/build_embeddings.py
+
+docker-compose-backup-db:
+	docker exec -it samy-backend uv run python scripts/backup_db.py

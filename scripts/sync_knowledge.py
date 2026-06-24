@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 
 from backend.rag.ingest import ingest_knowledge_directory
@@ -14,6 +15,12 @@ def sync_knowledge(
     This script re-ingests all knowledge files so that the vector store
     reflects the current state of the repository.
     """
+    import chromadb
+    # Ensure the collection reflects the current repo state (no duplicates/stale docs).
+    client = chromadb.Client()
+
+    with contextlib.suppress(Exception):
+        client.delete_collection(collection_name)
     ingest_knowledge_directory(root_dir=knowledge_dir, collection_name=collection_name)
 
 
