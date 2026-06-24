@@ -50,71 +50,56 @@ The project maintains a growing collection of engineering references, architectu
 
 This knowledge base becomes part of the assistant's reasoning process and allows responses to reflect practical engineering experience rather than generic internet knowledge.
 
-## Local Development
+## Utility Scripts
 
-Samy is developed using Python and managed through UV.
+Samy provides a small set of utility scripts to help manage the local database, knowledge base and embeddings. All scripts live under the `scripts/` directory and can be executed with `uv run` or plain `python` from the project root.
 
-The recommended workflow consists of cloning the repository, installing dependencies through UV, configuring Ollama locally, and starting the FastAPI service.
+### Database backup
 
-The project is designed to run locally with minimal infrastructure requirements.
-
-### Running Samy locally (UV + Ollama)
-
-Samy uses Ollama as the local model runtime. By default, the backend expects `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL` set to a valid model name available in your Ollama installation (for example, `codellama:13b` or `codegemma:7b` or `qwen2.5-coder:3b`).
-
-A typical local workflow:
-- Install `uv` and dependencies:
-```bash
-make install-uv
-make add-dependencies-uv
-```
-
-- Pull a model in Ollama (run once per environment):
-```bash
-# Example: pull CodeGemma 7B
-make run-pull-ollama   # internally runs: ollama pull codellama:13b
-```
-
-- Start the Ollama server:
-```bash
-make run-ollama        # runs `ollama serve`
-```
-
-- In another terminal, start Samy pointing to this Ollama instance:
-```bash
-make run-samy-with-ollama
-```
-
-Samy will then be available at `http://127.0.0.1:8000`, with the `/explain`, `/review`, and `/optimize` endpoints using the configured `OLLAMA_MODEL` for both chat and embeddings.
-
-### Choosing the LLM model (OLLAMA_MODEL)
-
-Samy uses Ollama as the local model runtime, and the default model is configured via environment variables. By default, the backend uses `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL=codellama:13b`, but you can override these values without changing the code.
-
-For example, to run Samy with CodeLlama 13B as the default model:
+The `backup_db.py` script creates a timestamped backup of the SQLite database:
 
 ```bash
-export OLLAMA_MODEL=codellama:13b
-make run-pull-ollama   # download the model in Ollama (once)
-make run-ollama        # start Ollama server
-make run-samy-with-ollama
+uv run python scripts/backup_db.py
+# or
+python scripts/backup_db.py
 ```
 
-To switch to a different model, such as CodeGemma:
+By default, it copies `backend/database/sqlite.db` into a `backups/` directory with a name such as `sqlite_20250101_120000.db`.
+
+### Building embeddings
+The `build_embeddings.py` script walks through the `knowledge/` directory, chunks its contents and generates embeddings using the configured Ollama model, storing them in the vector store:
+
 ```bash
-export OLLAMA_MODEL=codegemma:7b
-make run-pull-ollama
-make run-ollama
-make run-samy-with-ollama
+uv run python scripts/build_embeddings.py
+# or
+python scripts/build_embeddings.py
 ```
 
-The backend will automatically pick up the configured `OLLAMA_MODEL` for all `/explain`, `/review`, `/optimize` and embedding calls.
+This is a convenient way to (re)build embeddings after adding or updating knowledge files.
 
-## Deployment
+### Importing playbooks
+The `import_playbooks.py` script copies playbook files into the knowledge base under `knowledge/playbooks`:
 
-Samy can be deployed as a standalone container and executed on platforms such as Google Cloud Run.
+```bash
+uv run python scripts/import_playbooks.py /path/to/your/playbooks
+# or
+python scripts/import_playbooks.py /path/to/your/playbooks
+```
 
-The deployment architecture was intentionally designed to remain simple, allowing individual developers and small teams to operate the platform without requiring complex infrastructure.
+This helps keep operational/engineering playbooks versioned within the Samy repository and available for RAG.
+
+### Synchronizing knowledge
+The `sync_knowledge.py` script re-ingests all files under the `knowledge/` directory into the vector store:
+
+```bash
+uv run python scripts/sync_knowledge.py
+# or
+python scripts/sync_knowledge.py
+```
+
+Use this when the knowledge base changes and you want the vector store to reflect the current state (for example, after importing new playbooks or updating documentation).
+
+
 
 ## CI/CD Workflows
 
