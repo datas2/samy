@@ -1,0 +1,22 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from backend.rag.ingest import ingest_knowledge_directory
+
+
+def build_embeddings_for_knowledge(
+    knowledge_dir: str | Path = "knowledge",
+    collection_name: str = "samy_knowledge",
+) -> None:
+    """Build embeddings for the local knowledge base.
+
+    This script walks through the knowledge directory, chunks documents,
+    generates embeddings via Ollama and stores them in the vector store.
+    """
+    ingest_knowledge_directory(root_dir=knowledge_dir, collection_name=collection_name)
+
+
+if __name__ == "__main__":
+    build_embeddings_for_knowledge()
+    print("Embeddings built for knowledge directory.")
