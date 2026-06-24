@@ -1,6 +1,6 @@
 [project]
 name = "samy"
-version = "0.0.5"
+version = "0.4.0"
 description = "AI assistant built for Data, Cloud and Analytics"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,6 +12,7 @@ dependencies = [
     "openai>=2.42.0",
     "pydantic>=2.13.4",
     "pytest>=9.1.0",
+    "sqlalchemy>=2.0.51",
     "uvicorn>=0.49.0",
 ]
 
