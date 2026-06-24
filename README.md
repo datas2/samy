@@ -58,23 +58,54 @@ The recommended workflow consists of cloning the repository, installing dependen
 
 The project is designed to run locally with minimal infrastructure requirements.
 
+### Running Samy locally (UV + Ollama)
+
+Samy uses Ollama as the local model runtime. By default, the backend expects `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL` set to a valid model name available in your Ollama installation (for example, `codellama:13b` or `codegemma:7b` or `qwen2.5-coder:3b`).
+
+A typical local workflow:
+- Install `uv` and dependencies:
+```bash
+make install-uv
+make add-dependencies-uv
+```
+
+- Pull a model in Ollama (run once per environment):
+```bash
+# Example: pull CodeGemma 7B
+make run-pull-ollama   # internally runs: ollama pull codellama:13b
+```
+
+- Start the Ollama server:
+```bash
+make run-ollama        # runs `ollama serve`
+```
+
+- In another terminal, start Samy pointing to this Ollama instance:
+```bash
+make run-samy-with-ollama
+```
+
+Samy will then be available at `http://127.0.0.1:8000`, with the `/explain`, `/review`, and `/optimize` endpoints using the configured `OLLAMA_MODEL` for both chat and embeddings.
+
 ### Choosing the LLM model (OLLAMA_MODEL)
 
-Samy uses Ollama as the local model runtime, and the default model is configured via environment variables. By default, the backend uses `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL=qwen3.1:latest`, but you can override these values without changing the code.
+Samy uses Ollama as the local model runtime, and the default model is configured via environment variables. By default, the backend uses `OLLAMA_BASE_URL=http://127.0.0.1:11434` and `OLLAMA_MODEL=codellama:13b`, but you can override these values without changing the code.
 
-For example, to run Samy with Qwen 3 as the default model:
+For example, to run Samy with CodeLlama 13B as the default model:
 
 ```bash
-export OLLAMA_MODEL=qwen3.1:latest
-make run-ollama        # optional: download/run the model in Ollama
-make run-uv            # start the FastAPI backend
-````
+export OLLAMA_MODEL=codellama:13b
+make run-pull-ollama   # download the model in Ollama (once)
+make run-ollama        # start Ollama server
+make run-samy-with-ollama
+```
 
-To switch to a different model, such as Gemma:
+To switch to a different model, such as CodeGemma:
 ```bash
-export OLLAMA_MODEL=gemma2:latest
+export OLLAMA_MODEL=codegemma:7b
+make run-pull-ollama
 make run-ollama
-make run-uv
+make run-samy-with-ollama
 ```
 
 The backend will automatically pick up the configured `OLLAMA_MODEL` for all `/explain`, `/review`, `/optimize` and embedding calls.

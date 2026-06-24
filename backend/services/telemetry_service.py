@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from backend.core.logger import get_logger
+from backend.database.repositories import Database, TelemetryRepository
 
 
 @dataclass
@@ -25,12 +26,18 @@ class TelemetryService:
     """Simple telemetry service for logging Samy operations.
 
     This service focuses on lightweight logging-based telemetry, capturing
-    key events such as explain, review and optimize calls without requiring
-    external infrastructure.
+    key events such as explain, review and optimize calls, and can optionally
+    persist them to a SQLite database.
     """
 
-    def __init__(self, logger: Optional[logging.Logger] = None) -> None:
+    def __init__(
+        self,
+        logger: Optional[logging.Logger] = None,
+        repository: Optional[TelemetryRepository] = None,
+    ) -> None:
         self._logger = logger or get_logger("samy.telemetry")
+        # Initialize database/repository only if provided to keep it optional
+        self._repository = repository or TelemetryRepository(Database())
 
     @staticmethod
     def estimate_tokens_from_text(text: str) -> int:
@@ -54,6 +61,8 @@ class TelemetryService:
             timestamp=datetime.now(timezone.utc),
             payload=payload,
         )
+
+        # Log-based telemetry
         self._logger.info(
             "Telemetry event",
             extra={
@@ -62,3 +71,10 @@ class TelemetryService:
                 "payload": json.dumps(event.payload, ensure_ascii=False),
             },
         )
+
+        # Optional persistence in database
+        try:
+            self._repository.save_event(event.event_type, event.payload)
+        except Exception as exc:
+            # Best-effort: do not break main flow if DB fails
+            self._logger.error("Failed to persist telemetry event", extra={"error": str(exc)})

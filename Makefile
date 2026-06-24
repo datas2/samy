@@ -1,4 +1,7 @@
-# uv - https://uv.io/
+# ---------------------------------------------------------------------------
+# UV / local development
+# ---------------------------------------------------------------------------
+
 install-uv:
 	pip install uv
 
@@ -15,36 +18,49 @@ run-uv:
 build-uv:
 	uv build
 
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
 run-tests:
 	uv sync
 	@if [ -d tests/unit ]; then uv run pytest tests/unit; else echo "No unit tests found in tests/unit, skipping."; fi
 	@if [ -d tests/integration ]; then uv run pytest tests/integration; else echo "No integration tests found in tests/integration, skipping."; fi
 	@if [ -d tests/e2e ]; then uv run pytest tests/e2e; else echo "No e2e tests found in tests/e2e, skipping."; fi
 
+# ---------------------------------------------------------------------------
+# RAG ingestion
+# ---------------------------------------------------------------------------
 
 ingest-knowledge:
 	uv run python -c "from backend.rag.ingest import ingest_knowledge_directory; ingest_knowledge_directory('knowledge')"
 
+# ---------------------------------------------------------------------------
+# Ollama (local)
+# ---------------------------------------------------------------------------
 
-# ollama
 # Default model used by Samy via OLLAMA_MODEL (can be overridden).
 # Certify that this model exists in your Ollama (use `ollama list`).
-OLLAMA_MODEL ?= codegemma:7b
-run-ollama:
-	@echo "Starting Ollama server (ensure the model $(OLLAMA_MODEL) exists)..."
-	@echo "In another terminal, run: 'ollama run $(OLLAMA_MODEL)' if needed."
-	ollama serve
+OLLAMA_MODEL ?= qwen2.5-coder:3b
 
 run-pull-ollama:
 	@echo "Pulling model $(OLLAMA_MODEL) from Ollama registry..."
 	ollama pull $(OLLAMA_MODEL)
+
+run-ollama:
+	@echo "Starting Ollama server (ensure the model $(OLLAMA_MODEL) exists)..."
+	@echo "In another terminal, you can test the model with: 'ollama run $(OLLAMA_MODEL)'."
+	ollama serve
 
 run-samy-with-ollama:
 	@echo "Running Samy with Ollama at http://127.0.0.1:11434 using model $(OLLAMA_MODEL)"
 	@export OLLAMA_BASE_URL=http://127.0.0.1:11434; export OLLAMA_MODEL=$(OLLAMA_MODEL); \
 	make run-uv
 
-# docker
+# ---------------------------------------------------------------------------
+# Docker (single container, no Ollama)
+# ---------------------------------------------------------------------------
+
 build-docker:
 	docker build -t samy:latest .
 
@@ -80,14 +96,16 @@ docker-clean:
 
 docker-all: build-docker docker-up
 
-docker-samy-ollama:
-	docker exec -it samy-ollama bash
-	ollama pull $(OLLAMA_MODEL)
-	ollama run $(OLLAMA_MODEL)
+# ---------------------------------------------------------------------------
+# Docker Compose (Samy + Ollama)
+# ---------------------------------------------------------------------------
 
-# docker-compose
 docker-compose-up:
 	docker-compose up --build
 
 docker-compose-down:
 	docker-compose down
+
+# Helper to open a shell in the Ollama container (for manual pulls)
+docker-ollama-shell:
+	docker exec -it samy-ollama bash

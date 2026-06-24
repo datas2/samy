@@ -23,7 +23,7 @@ services:
       OLLAMA_BASE_URL: http://ollama:11434
       
       # Default model (can be overridden)
-      OLLAMA_MODEL: qwen3.1:latest
+      OLLAMA_MODEL: codellama:13b
     ports:
       - "8000:8000"
 
