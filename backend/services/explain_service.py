@@ -49,8 +49,19 @@ class ExplainService:
         ctx = self._build_context_dict(request)
 
         # RAG: retrieve relevant knowledge based on prompt + code
-        query_text = f"{request.prompt}\n\n{request.code or ''}"
-        knowledge_hits = self._retriever.retrieve(query=query_text, k=5)
+        knowledge_hits: List[Dict[str, Any]] = []
+        try:
+            query_text = f"{request.prompt}\n\n{request.code or ''}"
+            knowledge_hits = self._retriever.retrieve(query=query_text, k=5)
+        except Exception as exc:
+            # If RAG/embeddings are unavailable, fall back to LLM-only and log telemetry.
+            self._telemetry.record_event(
+                event_type="rag_error",
+                payload={
+                    "operation": "explain",
+                    "error": str(exc),
+                },
+            )
 
         messages = build_explain_messages(
             prompt=request.prompt,

@@ -53,8 +53,18 @@ class ReviewService:
 
         ctx = self._build_context_dict(request)
 
-        query_text = f"{request.goal or ''}\n\n{request.code}"
-        knowledge_hits = self._retriever.retrieve(query=query_text, k=5)
+        knowledge_hits: List[Dict[str, Any]] = []
+        try:
+            query_text = f"{request.goal or ''}\n\n{request.code}"
+            knowledge_hits = self._retriever.retrieve(query=query_text, k=5)
+        except Exception as exc:
+            self._telemetry.record_event(
+                event_type="rag_error",
+                payload={
+                    "operation": "review",
+                    "error": str(exc),
+                },
+            )
 
         messages = build_review_messages(
             code=request.code,
