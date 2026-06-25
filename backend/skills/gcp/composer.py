@@ -5,53 +5,53 @@ from typing import Dict, Optional
 from backend.skills.gcp.base import GcpSkillBase
 
 
-class BigQuerySkill(GcpSkillBase):
-    """GCP BigQuery skill for explain, optimize, cost reduction, config and architecture review."""
+class ComposerSkill(GcpSkillBase):
+    """GCP Cloud Composer skill for explain, optimize, cost reduction, config and architecture review."""
 
     def __init__(self, **kwargs) -> None:
-        super().__init__(service_name="BigQuery", **kwargs)
+        super().__init__(service_name="Cloud Composer", **kwargs)
 
     def explain(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Explain how to implement or use something in BigQuery."""
+        """Explain how to orchestrate pipelines with Cloud Composer."""
         return self._rag_and_llm(
             operation="explain",
-            objective="Explain how to design and implement this in BigQuery.",
+            objective="Explain how to design and operate pipelines with Cloud Composer.",
             description=description,
             context=context,
         )
 
     def optimize(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Suggest performance optimizations for BigQuery workloads."""
+        """Optimize Composer environments and DAGs."""
         return self._rag_and_llm(
             operation="optimize",
-            objective="Optimize BigQuery queries and workloads for performance.",
+            objective="Optimize Cloud Composer DAGs and environments for reliability and performance.",
             description=description,
             context=context,
         )
 
     def reduce_costs(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Suggest ways to reduce costs in BigQuery."""
+        """Suggest cost reductions for Cloud Composer."""
         return self._rag_and_llm(
             operation="reduce_costs",
-            objective="Reduce BigQuery costs by optimizing storage, slots and queries.",
+            objective="Reduce Cloud Composer costs via environment sizing and scheduling strategies.",
             description=description,
             context=context,
         )
 
     def configure(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Explain how to configure BigQuery (datasets, projects, permissions)."""
+        """Explain how to configure Composer environments."""
         return self._rag_and_llm(
             operation="configure",
-            objective="Explain how to configure BigQuery for this scenario.",
+            objective="Explain how to configure Cloud Composer for this scenario.",
             description=description,
             context=context,
         )
 
     def review_architecture(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Review architectural patterns involving BigQuery."""
+        """Review architectures that use Composer as orchestration."""
         return self._rag_and_llm(
             operation="review_architecture",
-            objective="Review BigQuery architecture and patterns for best practices.",
+            objective="Review architectures orchestrated by Cloud Composer for best practices.",
             description=description,
             context=context,
         )

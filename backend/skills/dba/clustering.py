@@ -5,35 +5,35 @@ from typing import Dict, Optional
 from backend.skills.dba.base import DbaSkillBase
 
 
-class ModelingSkill(DbaSkillBase):
-    """DBA modeling skill for explaining, optimizing and reviewing database models."""
+class ClusteringSkill(DbaSkillBase):
+    """DBA clustering skill for explaining, optimizing and reviewing clustering strategies."""
 
     def __init__(self, **kwargs) -> None:
-        super().__init__(topic_name="modeling", **kwargs)
+        super().__init__(topic_name="clustering", **kwargs)
 
     def explain(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Explain data modeling approaches (OLTP, OLAP, star schema, etc.)."""
+        """Explain clustering strategies (table clustering, sharding, etc.)."""
         return self._rag_and_llm(
             operation="explain",
-            objective="Explain appropriate data modeling approaches for this scenario.",
+            objective="Explain clustering strategies and when to apply them.",
             description=description,
             context=context,
         )
 
     def optimize(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Optimize existing data models for performance and maintainability."""
+        """Optimize clustering configurations for performance."""
         return self._rag_and_llm(
             operation="optimize",
-            objective="Optimize data models for performance, maintainability and scalability.",
+            objective="Optimize clustering for query performance and maintenance.",
             description=description,
             context=context,
         )
 
     def review_architecture(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Review data modeling aspects of an architecture."""
+        """Review architectures that rely on clustering for scalability."""
         return self._rag_and_llm(
             operation="review_architecture",
-            objective="Review data modeling decisions for best practices and fit-for-purpose.",
+            objective="Review clustering-related architectural patterns for best practices.",
             description=description,
             context=context,
         )

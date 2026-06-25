@@ -2,56 +2,56 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from backend.skills.gcp.base import GcpSkillBase
+from backend.skills.dba.base import DbaSkillBase
 
 
-class BigQuerySkill(GcpSkillBase):
-    """GCP BigQuery skill for explain, optimize, cost reduction, config and architecture review."""
+class PostgresSkill(DbaSkillBase):
+    """DBA Postgres skill for explain, optimize, cost reduction, config and architecture review."""
 
     def __init__(self, **kwargs) -> None:
-        super().__init__(service_name="BigQuery", **kwargs)
+        super().__init__(topic_name="postgres", **kwargs)
 
     def explain(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Explain how to implement or use something in BigQuery."""
+        """Explain how to design and operate Postgres instances."""
         return self._rag_and_llm(
             operation="explain",
-            objective="Explain how to design and implement this in BigQuery.",
+            objective="Explain how to design, configure and operate Postgres for this scenario.",
             description=description,
             context=context,
         )
 
     def optimize(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Suggest performance optimizations for BigQuery workloads."""
+        """Optimize Postgres for performance (indexes, configs, queries)."""
         return self._rag_and_llm(
             operation="optimize",
-            objective="Optimize BigQuery queries and workloads for performance.",
+            objective="Optimize Postgres performance (indexes, configs, query tuning).",
             description=description,
             context=context,
         )
 
     def reduce_costs(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Suggest ways to reduce costs in BigQuery."""
+        """Suggest ways to reduce operational costs for Postgres."""
         return self._rag_and_llm(
             operation="reduce_costs",
-            objective="Reduce BigQuery costs by optimizing storage, slots and queries.",
+            objective="Reduce Postgres costs via sizing, storage tuning and maintenance.",
             description=description,
             context=context,
         )
 
     def configure(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Explain how to configure BigQuery (datasets, projects, permissions)."""
+        """Explain how to configure Postgres (parameters, replication, backups)."""
         return self._rag_and_llm(
             operation="configure",
-            objective="Explain how to configure BigQuery for this scenario.",
+            objective="Explain how to configure Postgres parameters, replication and backups.",
             description=description,
             context=context,
         )
 
     def review_architecture(self, description: str, context: Optional[Dict[str, str]] = None) -> str:
-        """Review architectural patterns involving BigQuery."""
+        """Review architectures that use Postgres as a primary database."""
         return self._rag_and_llm(
             operation="review_architecture",
-            objective="Review BigQuery architecture and patterns for best practices.",
+            objective="Review architectures using Postgres for best practices and resilience.",
             description=description,
             context=context,
         )
