@@ -35,18 +35,18 @@ jobs:
 
       - name: "Run unit tests"
         run: |
-          if [ -d tests/unit ]; then
-            uv run pytest tests/unit
+          if [ -d backend/tests/unit ]; then
+            uv run pytest backend/tests/unit
           else
-            echo "No unit tests found in tests/unit, skipping."
+            echo "No unit tests found in backend/tests/unit, skipping."
           fi
 
       - name: "Run integration tests"
         run: |
-          if [ -d tests/integration ]; then
-            uv run pytest tests/integration
+          if [ -d backend/tests/integration ]; then
+            uv run pytest backend/tests/integration
           else
-            echo "No integration tests found in tests/integration, skipping."
+            echo "No integration tests found in backend/tests/integration, skipping."
           fi
 
       # E2E tests are currently disabled in CI because they require
@@ -54,8 +54,8 @@ jobs:
       # in ephemeral runners. Re-enable when we have a stable setup.
       # - name: "Run e2e tests"
       #   run: |
-      #     if [ -d tests/e2e ]; then
-      #       uv run pytest tests/e2e
+      #     if [ -d backend/tests/e2e ]; then
+      #       uv run pytest backend/tests/e2e
       #     else
-      #       echo "No e2e tests found in tests/e2e, skipping."
+      #       echo "No e2e tests found in backend/tests/e2e, skipping."
       #     fi
