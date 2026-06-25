@@ -6,11 +6,11 @@ from backend.llm.ollama_client import OllamaClient
 from backend.services.telemetry_service import TelemetryService
 
 
-class GoReviewSkill:
-    """Go-specific review skill for code quality and best practices.
+class GoConcurrencySkill:
+    """Go-specific skill for analyzing and improving concurrency.
 
-    This skill reviews Go code focusing on correctness, idiomatic style,
-    performance and concurrency safety using the configured LLM.
+    This skill focuses on identifying concurrency issues (data races, deadlocks,
+    misuse of goroutines/channels) and suggesting safer patterns.
     """
 
     def __init__(
@@ -21,26 +21,29 @@ class GoReviewSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def review(
+    def analyze_concurrency(
         self,
         *,
-        code: str,
-        goal: str = "Review this Go code for correctness, idiomatic style and performance.",
+        description: str,
+        objective: str = "Analyze the concurrency aspects of this Go code.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
-        """Review Go code using the LLM.
+        """Analyze concurrency aspects of Go code using the LLM.
 
         Args:
-            code: Go source code to be reviewed.
-            goal: Main review goal (e.g., correctness, style, performance).
-            context: Optional context (package, concurrency concerns, etc.).
+            description: Natural language description of the Go code to be analyzed.
+            objective: Main analysis objective (e.g., find data races, deadlocks).
+            context: Optional context such as runtimes, frameworks or constraints.
 
+        
         Returns:
-            A natural language review summary.
+            A natural language analysis and suggestions for safer concurrency.
         """
+        code = description
         system = (
-            "You are a senior Go engineer. Review the following Go code, "
-            "highlighting correctness, idiomatic usage, performance and safety issues."
+            "You are a senior Go engineer specializing in concurrency. "
+            "Analyze the following Go code for concurrency issues such as data races, "
+            "deadlocks, misuse of goroutines/channels and recommend safer patterns."
         )
 
         ctx_lines: List[str] = []
@@ -52,10 +55,10 @@ class GoReviewSkill:
         context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
         user_content = (
-            f"{goal}\n\n"
+            f"{objective}\n\n"
             f"Context:\n{context_block}\n\n"
             f"Go code:\n{code}\n\n"
-            "Provide a concise review with concrete, actionable suggestions."
+            "Provide a concise analysis highlighting issues and suggesting improvements."
         )
 
         messages = [
@@ -64,31 +67,31 @@ class GoReviewSkill:
         ]
 
         try:
-            review_text = self._llm_client.chat(messages) or "No review content generated."
+            analysis_text = self._llm_client.chat(messages) or "No concurrency analysis generated."
         except Exception as exc:
-            fallback = "LLM is unavailable or timed out while reviewing Go code. Please try again later."
+            fallback = "LLM is unavailable or timed out while analyzing Go concurrency. Please try again later."
             self._telemetry.record_event(
-                event_type="go_review_llm_error",
+                event_type="go_concurrency_llm_error",
                 payload={
-                    "operation": "go_review",
+                    "operation": "go_concurrency",
                     "error": str(exc),
                 },
             )
-            review_text = fallback
+            analysis_text = fallback
 
         prompt_tokens_estimate = self._telemetry.estimate_tokens_from_text(
             system + "\n\n" + user_content
         )
-        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(review_text)
+        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(analysis_text)
 
         self._telemetry.record_event(
-            event_type="go_review",
+            event_type="go_concurrency",
             payload={
-                "goal": goal,
+                "objective": objective,
                 "context": context,
                 "prompt_tokens_estimate": prompt_tokens_estimate,
                 "response_tokens_estimate": response_tokens_estimate,
             },
         )
 
-        return review_text
+        return analysis_text

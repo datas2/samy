@@ -24,20 +24,22 @@ class PythonRefactorSkill:
     def refactor(
         self,
         *,
-        code: str,
+        description: str,
         objective: str = "Refactor this Python code for readability and maintainability.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Refactor Python code using the LLM.
 
         Args:
-            code: Python source code to be refactored.
+            description: Python source code to be refactored.
             objective: High-level refactor goal.
             context: Optional context (framework, constraints, etc.).
 
         Returns:
             A refactored version of the code as a string.
         """
+        code = description
+        
         system = (
             "You are a senior Python engineer. Refactor code to improve readability, "
             "maintainability and adherence to PEP8, without changing behavior."

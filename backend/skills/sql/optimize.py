@@ -28,20 +28,22 @@ class SQLOptimizeSkill:
     def optimize_sql(
         self,
         *,
-        query: str,
+        description: str,
         objective: str = "Optimize this SQL for performance and cost.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Suggest optimizations for a SQL query using RAG + LLM.
 
         Args:
-            query: SQL statement to be optimized.
+            description: SQL statement to be optimized.
             objective: Main optimization objective (e.g., performance, cost).
             context: Optional context about database, engine, etc.
 
         Returns:
             A natural language description of optimization suggestions.
         """
+        query = description
+        
         # RAG: retrieve relevant knowledge snippets for optimization
         knowledge_hits: List[Dict[str, str]] = []
         try:

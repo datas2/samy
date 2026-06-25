@@ -24,20 +24,21 @@ class PythonTestsSkill:
     def generate_tests(
         self,
         *,
-        code: str,
+        description: str,
         objective: str = "Generate pytest-style unit tests for this Python code.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Generate tests for Python code using the LLM.
 
         Args:
-            code: Python source code to be tested.
+            description: Natural language description of the Python code to be tested.
             objective: High-level goal for the tests (e.g., coverage, regression).
             context: Optional context (frameworks, constraints, etc.).
 
         Returns:
             A string containing test code.
         """
+        code = description
         system = (
             "You are a senior Python engineer. Generate concise, meaningful unit tests "
             "using pytest or the standard library unittest, focusing on behavior."

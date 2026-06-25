@@ -28,20 +28,22 @@ class SQLExplainSkill:
     def explain_sql(
         self,
         *,
-        query: str,
+        description: str,
         objective: str = "Explain what this SQL does and highlight key aspects.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Explain a SQL query using RAG + LLM.
 
         Args:
-            query: SQL statement to be explained.
+            description: SQL statement to be explained.
             objective: High-level explanation goal.
             context: Optional context about database, engine, etc.
 
         Returns:
             A natural language explanation string.
         """
+        query = description
+        
         # Build a prompt tailored for SQL
         prompt = f"{objective}\n\nSQL:\n{query}"
 

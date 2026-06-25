@@ -6,11 +6,11 @@ from backend.llm.ollama_client import OllamaClient
 from backend.services.telemetry_service import TelemetryService
 
 
-class GoConcurrencySkill:
-    """Go-specific skill for analyzing and improving concurrency.
+class GoTestsSkill:
+    """Go-specific skill for generating and improving tests.
 
-    This skill focuses on identifying concurrency issues (data races, deadlocks,
-    misuse of goroutines/channels) and suggesting safer patterns.
+    This skill focuses on generating Go test functions (using the testing
+    package) and improving existing tests for Go code.
     """
 
     def __init__(
@@ -21,27 +21,27 @@ class GoConcurrencySkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def analyze_concurrency(
+    def generate(
         self,
         *,
-        code: str,
-        objective: str = "Analyze the concurrency aspects of this Go code.",
+        description: str,
+        objective: str = "Generate Go tests for this code using the testing package.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
-        """Analyze concurrency aspects of Go code using the LLM.
+        """Generate Go tests from a natural language description and code.
 
         Args:
-            code: Go source code that uses goroutines, channels, mutexes, etc.
-            objective: Main analysis objective (e.g., find data races, deadlocks).
-            context: Optional context such as runtimes, frameworks or constraints.
+            description: Natural language description of the Go code to be tested.
+            objective: High-level goal for the tests.
+            context: Optional context (package name, frameworks, etc.).
 
         Returns:
-            A natural language analysis and suggestions for safer concurrency.
+            A string containing Go test code.
         """
+        code = description
         system = (
-            "You are a senior Go engineer specializing in concurrency. "
-            "Analyze the following Go code for concurrency issues such as data races, "
-            "deadlocks, misuse of goroutines/channels and recommend safer patterns."
+            "You are a senior Go engineer. Generate idiomatic Go tests using "
+            "the standard testing package. Focus on behavior and corner cases."
         )
 
         ctx_lines: List[str] = []
@@ -56,7 +56,7 @@ class GoConcurrencySkill:
             f"{objective}\n\n"
             f"Context:\n{context_block}\n\n"
             f"Go code:\n{code}\n\n"
-            "Provide a concise analysis highlighting issues and suggesting improvements."
+            "Return only the Go test code, including package, imports and test functions."
         )
 
         messages = [
@@ -65,25 +65,25 @@ class GoConcurrencySkill:
         ]
 
         try:
-            analysis_text = self._llm_client.chat(messages) or "No concurrency analysis generated."
+            tests_code = self._llm_client.chat(messages) or ""
         except Exception as exc:
-            fallback = "LLM is unavailable or timed out while analyzing Go concurrency. Please try again later."
+            fallback = "// LLM is unavailable or timed out while generating Go tests.\n"
             self._telemetry.record_event(
-                event_type="go_concurrency_llm_error",
+                event_type="go_tests_llm_error",
                 payload={
-                    "operation": "go_concurrency",
+                    "operation": "go_tests",
                     "error": str(exc),
                 },
             )
-            analysis_text = fallback
+            tests_code = fallback
 
         prompt_tokens_estimate = self._telemetry.estimate_tokens_from_text(
             system + "\n\n" + user_content
         )
-        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(analysis_text)
+        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(tests_code)
 
         self._telemetry.record_event(
-            event_type="go_concurrency",
+            event_type="go_tests",
             payload={
                 "objective": objective,
                 "context": context,
@@ -92,4 +92,4 @@ class GoConcurrencySkill:
             },
         )
 
-        return analysis_text
+        return tests_code

@@ -6,11 +6,11 @@ from backend.llm.ollama_client import OllamaClient
 from backend.services.telemetry_service import TelemetryService
 
 
-class GoTestsSkill:
-    """Go-specific skill for generating and improving tests.
+class GoReviewSkill:
+    """Go-specific review skill for code quality and best practices.
 
-    This skill focuses on generating Go test functions (using the testing
-    package) and improving existing tests for Go code.
+    This skill reviews Go code focusing on correctness, idiomatic style,
+    performance and concurrency safety using the configured LLM.
     """
 
     def __init__(
@@ -21,26 +21,27 @@ class GoTestsSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def generate_tests(
+    def review(
         self,
         *,
-        code: str,
-        objective: str = "Generate Go tests for this code using the testing package.",
+        description: str,
+        goal: str = "Review this Go code for correctness, idiomatic style and performance.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
-        """Generate Go tests from a natural language description and code.
+        """Review Go code using the LLM.
 
         Args:
-            code: Go source code to be tested.
-            objective: High-level goal for the tests.
-            context: Optional context (package name, frameworks, etc.).
+            description: Natural language description of the Go code to be reviewed.
+            goal: Main review goal (e.g., correctness, style, performance).
+            context: Optional context (package, concurrency concerns, etc.).
 
         Returns:
-            A string containing Go test code.
+            A natural language review summary.
         """
+        code = description
         system = (
-            "You are a senior Go engineer. Generate idiomatic Go tests using "
-            "the standard testing package. Focus on behavior and corner cases."
+            "You are a senior Go engineer. Review the following Go code, "
+            "highlighting correctness, idiomatic usage, performance and safety issues."
         )
 
         ctx_lines: List[str] = []
@@ -52,10 +53,10 @@ class GoTestsSkill:
         context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
         user_content = (
-            f"{objective}\n\n"
+            f"{goal}\n\n"
             f"Context:\n{context_block}\n\n"
             f"Go code:\n{code}\n\n"
-            "Return only the Go test code, including package, imports and test functions."
+            "Provide a concise review with concrete, actionable suggestions."
         )
 
         messages = [
@@ -64,31 +65,31 @@ class GoTestsSkill:
         ]
 
         try:
-            tests_code = self._llm_client.chat(messages) or ""
+            review_text = self._llm_client.chat(messages) or "No review content generated."
         except Exception as exc:
-            fallback = "// LLM is unavailable or timed out while generating Go tests.\n"
+            fallback = "LLM is unavailable or timed out while reviewing Go code. Please try again later."
             self._telemetry.record_event(
-                event_type="go_tests_llm_error",
+                event_type="go_review_llm_error",
                 payload={
-                    "operation": "go_tests",
+                    "operation": "go_review",
                     "error": str(exc),
                 },
             )
-            tests_code = fallback
+            review_text = fallback
 
         prompt_tokens_estimate = self._telemetry.estimate_tokens_from_text(
             system + "\n\n" + user_content
         )
-        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(tests_code)
+        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(review_text)
 
         self._telemetry.record_event(
-            event_type="go_tests",
+            event_type="go_review",
             payload={
-                "objective": objective,
+                "goal": goal,
                 "context": context,
                 "prompt_tokens_estimate": prompt_tokens_estimate,
                 "response_tokens_estimate": response_tokens_estimate,
             },
         )
 
-        return tests_code
+        return review_text

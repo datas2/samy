@@ -28,20 +28,22 @@ class SQLReviewSkill:
     def review_sql(
         self,
         *,
-        query: str,
+        description: str,
         goal: str = "Review this SQL for correctness, readability and performance.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Review a SQL query using RAG + LLM.
 
         Args:
-            query: SQL statement to be reviewed.
+            description: SQL statement to be reviewed.
             goal: High-level review goal.
             context: Optional context about database, engine, etc.
 
         Returns:
             A natural language review summary.
         """
+        query = description
+        
         # RAG: retrieve relevant knowledge/snippets for SQL review
         knowledge_hits: List[Dict[str, str]] = []
         try:

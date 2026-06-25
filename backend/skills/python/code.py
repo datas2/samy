@@ -36,6 +36,7 @@ class PythonCodeGenerationSkill:
         Returns:
             A string containing the generated Python code.
         """
+        code = description
         system = (
             "You are a senior Python engineer. Generate clean, idiomatic Python code "
             "that implements the requested behavior. Prefer simple, readable solutions."

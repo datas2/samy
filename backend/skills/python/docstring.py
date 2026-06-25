@@ -24,20 +24,21 @@ class PythonDocstringSkill:
     def generate_docstring(
         self,
         *,
-        code: str,
+        description: str,
         objective: str = "Generate a clear, structured docstring for this Python function or class.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Generate a docstring for Python code using the LLM.
 
         Args:
-            code: Python function or class definition.
+            description: Natural language description of the Python function or class.
             objective: Docstring generation goal (e.g., Google style).
             context: Optional context (project conventions, etc.).
 
         Returns:
             A string containing the suggested docstring.
         """
+        code = description
         system = (
             "You are a Python documentation assistant. Generate concise, clear docstrings "
             "following Google style, focusing on behavior, arguments and return values."

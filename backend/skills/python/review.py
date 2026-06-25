@@ -25,20 +25,21 @@ class PythonReviewSkill:
     def review(
         self,
         *,
-        code: str,
+        description: str,
         goal: str = "Review this Python code for correctness, readability and performance.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Review Python code using the LLM.
 
         Args:
-            code: Python source code to be reviewed.
+            description: Natural language description of the Python code to be reviewed.
             goal: Main review goal (e.g., style, correctness, performance).
             context: Optional context (frameworks, constraints, etc.).
 
         Returns:
             A natural language review summary.
         """
+        code = description
         messages = build_review_messages(
             code=code,
             goal=goal,

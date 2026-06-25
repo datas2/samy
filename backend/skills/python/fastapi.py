@@ -98,20 +98,21 @@ class PythonFastAPISkill:
     def review_fastapi_code(
         self,
         *,
-        code: str,
+        description: str,
         goal: str = "Review this FastAPI code for structure, style and best practices.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
         """Review existing FastAPI code using the LLM.
 
         Args:
-            code: FastAPI code snippet to be reviewed.
+            description: Natural language description of the FastAPI code to be reviewed.
             goal: Main review goal (structure, style, performance, etc.).
             context: Optional context such as expected usage or constraints.
 
         Returns:
             A natural language review summary.
         """
+        code = description
         system = (
             "You are a senior backend engineer specializing in FastAPI. "
             "Review the following FastAPI code, highlighting strengths, "
