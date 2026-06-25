@@ -25,7 +25,7 @@ class SQLReviewSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def review_sql(
+    def review(
         self,
         *,
         description: str,

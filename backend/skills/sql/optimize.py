@@ -25,7 +25,7 @@ class SQLOptimizeSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def optimize_sql(
+    def optimize(
         self,
         *,
         description: str,

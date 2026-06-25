@@ -6,7 +6,7 @@ from backend.skills.dba.modeling import ModelingSkill
 from backend.skills.dba.partitioning import PartitioningSkill
 from backend.skills.dba.postgres import PostgresSkill
 from backend.skills.dba.replication import ReplicationSkill
-from backend.skills.dba.vaccum import VacuumSkill
+from backend.skills.dba.vacuum import VacuumSkill
 
 
 def test_indexes_skill_review_architecture_basic():

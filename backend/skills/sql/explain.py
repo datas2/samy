@@ -25,7 +25,7 @@ class SQLExplainSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def explain_sql(
+    def explain(
         self,
         *,
         description: str,

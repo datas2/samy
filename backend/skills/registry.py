@@ -10,6 +10,7 @@ from backend.services.telemetry_service import TelemetryService
 from backend.skills.sql.explain import SQLExplainSkill
 from backend.skills.sql.review import SQLReviewSkill
 from backend.skills.sql.optimize import SQLOptimizeSkill
+from backend.skills.sql.code import SQLCodeGenerationSkill
 
 # Python
 from backend.skills.python.refactor import PythonRefactorSkill
@@ -44,7 +45,7 @@ from backend.skills.dba.indexes import IndexesSkill
 from backend.skills.dba.modeling import ModelingSkill
 from backend.skills.dba.partitioning import PartitioningSkill
 from backend.skills.dba.postgres import PostgresSkill
-from backend.skills.dba.vaccum import VacuumSkill
+from backend.skills.dba.vacuum import VacuumSkill
 from backend.skills.dba.replication import ReplicationSkill
 from backend.skills.dba.backup_restore import BackupRestoreSkill
 from backend.skills.dba.migration import MigrationSkill
@@ -73,6 +74,7 @@ class SkillRegistry:
             ("sql", "explain"): SQLExplainSkill,
             ("sql", "review"): SQLReviewSkill,
             ("sql", "optimize"): SQLOptimizeSkill,
+            ("sql", "code"): SQLCodeGenerationSkill,
             
             # Python
             ("python", "refactor"): PythonRefactorSkill,
