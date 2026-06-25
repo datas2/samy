@@ -6,11 +6,11 @@ from backend.llm.ollama_client import OllamaClient
 from backend.services.telemetry_service import TelemetryService
 
 
-class PythonRefactorSkill:
-    """Python-specific refactor skill for improving code structure and style.
+class GoTestsSkill:
+    """Go-specific skill for generating and improving tests.
 
-    This skill focuses on refactoring Python code to improve readability,
-    maintainability and adherence to best practices using the configured LLM.
+    This skill focuses on generating Go test functions (using the testing
+    package) and improving existing tests for Go code.
     """
 
     def __init__(
@@ -21,43 +21,42 @@ class PythonRefactorSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def refactor(
+    def generate(
         self,
         *,
         description: str,
-        objective: str = "Refactor this Python code for readability and maintainability.",
+        objective: str = "Generate Go tests for this code using the testing package.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
-        """Refactor Python code using the LLM.
+        """Generate Go tests from a natural language description and code.
 
         Args:
-            description: Python source code to be refactored.
-            objective: High-level refactor goal.
-            context: Optional context (framework, constraints, etc.).
+            description: Natural language description of the Go code to be tested.
+            objective: High-level goal for the tests.
+            context: Optional context (package name, frameworks, etc.).
 
         Returns:
-            A refactored version of the code as a string.
+            A string containing Go test code.
         """
         code = description
-        
         system = (
-            "You are a senior Python engineer. Refactor code to improve readability, "
-            "maintainability and adherence to PEP8, without changing behavior."
+            "You are a senior Go engineer. Generate idiomatic Go tests using "
+            "the standard testing package. Focus on behavior and corner cases."
         )
 
         ctx_lines: List[str] = []
         if context:
-            if fw := context.get("framework"):
-                ctx_lines.append(f"Framework: {fw}")
-            if env := context.get("environment"):
-                ctx_lines.append(f"Environment: {env}")
+            if pkg := context.get("package"):
+                ctx_lines.append(f"Package: {pkg}")
+            if notes := context.get("notes"):
+                ctx_lines.append(f"Notes: {notes}")
         context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
         user_content = (
             f"{objective}\n\n"
             f"Context:\n{context_block}\n\n"
-            f"Python code:\n{code}\n\n"
-            "Return only the refactored code, without additional explanations."
+            f"Go code:\n{code}\n\n"
+            "Return only the Go test code, including package, imports and test functions."
         )
 
         messages = [
@@ -66,25 +65,25 @@ class PythonRefactorSkill:
         ]
 
         try:
-            refactored_code = self._llm_client.chat(messages) or code
+            tests_code = self._llm_client.chat(messages) or ""
         except Exception as exc:
-            fallback = "# LLM is unavailable or timed out while refactoring Python code.\n" + code
+            fallback = "// LLM is unavailable or timed out while generating Go tests.\n"
             self._telemetry.record_event(
-                event_type="llm_error",
+                event_type="go_tests_llm_error",
                 payload={
-                    "operation": "python_refactor",
+                    "operation": "go_tests",
                     "error": str(exc),
                 },
             )
-            refactored_code = fallback
+            tests_code = fallback
 
         prompt_tokens_estimate = self._telemetry.estimate_tokens_from_text(
             system + "\n\n" + user_content
         )
-        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(refactored_code)
+        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(tests_code)
 
         self._telemetry.record_event(
-            event_type="python_refactor",
+            event_type="go_tests",
             payload={
                 "objective": objective,
                 "context": context,
@@ -93,4 +92,4 @@ class PythonRefactorSkill:
             },
         )
 
-        return refactored_code
+        return tests_code

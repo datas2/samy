@@ -6,11 +6,11 @@ from backend.llm.ollama_client import OllamaClient
 from backend.services.telemetry_service import TelemetryService
 
 
-class PythonRefactorSkill:
-    """Python-specific refactor skill for improving code structure and style.
+class PythonDocstringSkill:
+    """Python-specific skill for generating and improving docstrings.
 
-    This skill focuses on refactoring Python code to improve readability,
-    maintainability and adherence to best practices using the configured LLM.
+    This skill helps create clear, structured docstrings (e.g., Google style)
+    for functions, classes and methods in Python code.
     """
 
     def __init__(
@@ -21,43 +21,42 @@ class PythonRefactorSkill:
         self._llm_client = llm_client or OllamaClient()
         self._telemetry = telemetry or TelemetryService()
 
-    def refactor(
+    def generate_docstring(
         self,
         *,
         description: str,
-        objective: str = "Refactor this Python code for readability and maintainability.",
+        objective: str = "Generate a clear, structured docstring for this Python function or class.",
         context: Optional[Dict[str, str]] = None,
     ) -> str:
-        """Refactor Python code using the LLM.
+        """Generate a docstring for Python code using the LLM.
 
         Args:
-            description: Python source code to be refactored.
-            objective: High-level refactor goal.
-            context: Optional context (framework, constraints, etc.).
+            description: Natural language description of the Python function or class.
+            objective: Docstring generation goal (e.g., Google style).
+            context: Optional context (project conventions, etc.).
 
         Returns:
-            A refactored version of the code as a string.
+            A string containing the suggested docstring.
         """
         code = description
-        
         system = (
-            "You are a senior Python engineer. Refactor code to improve readability, "
-            "maintainability and adherence to PEP8, without changing behavior."
+            "You are a Python documentation assistant. Generate concise, clear docstrings "
+            "following Google style, focusing on behavior, arguments and return values."
         )
 
         ctx_lines: List[str] = []
         if context:
-            if fw := context.get("framework"):
-                ctx_lines.append(f"Framework: {fw}")
-            if env := context.get("environment"):
-                ctx_lines.append(f"Environment: {env}")
+            if style := context.get("style"):
+                ctx_lines.append(f"Docstring style: {style}")
+            if extra := context.get("notes"):
+                ctx_lines.append(f"Notes: {extra}")
         context_block = "\n".join(ctx_lines) if ctx_lines else "No extra context."
 
         user_content = (
             f"{objective}\n\n"
             f"Context:\n{context_block}\n\n"
             f"Python code:\n{code}\n\n"
-            "Return only the refactored code, without additional explanations."
+            "Return only the docstring text (without the surrounding quotes)."
         )
 
         messages = [
@@ -66,25 +65,25 @@ class PythonRefactorSkill:
         ]
 
         try:
-            refactored_code = self._llm_client.chat(messages) or code
+            docstring_text = self._llm_client.chat(messages) or ""
         except Exception as exc:
-            fallback = "# LLM is unavailable or timed out while refactoring Python code.\n" + code
+            fallback = "# LLM is unavailable or timed out while generating docstrings.\n"
             self._telemetry.record_event(
                 event_type="llm_error",
                 payload={
-                    "operation": "python_refactor",
+                    "operation": "python_docstring",
                     "error": str(exc),
                 },
             )
-            refactored_code = fallback
+            docstring_text = fallback
 
         prompt_tokens_estimate = self._telemetry.estimate_tokens_from_text(
             system + "\n\n" + user_content
         )
-        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(refactored_code)
+        response_tokens_estimate = self._telemetry.estimate_tokens_from_text(docstring_text)
 
         self._telemetry.record_event(
-            event_type="python_refactor",
+            event_type="python_docstring",
             payload={
                 "objective": objective,
                 "context": context,
@@ -93,4 +92,4 @@ class PythonRefactorSkill:
             },
         )
 
-        return refactored_code
+        return docstring_text

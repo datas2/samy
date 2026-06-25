@@ -6,6 +6,7 @@ from backend.api.health import router as health_router
 from backend.api.explain import router as explain_router
 from backend.api.review import router as review_router
 from backend.api.optimize import router as optimize_router
+from backend.api.skills import router as skills_router
 
 
 def get_api_router() -> APIRouter:
@@ -20,4 +21,5 @@ def get_api_router() -> APIRouter:
     api_router.include_router(explain_router)
     api_router.include_router(review_router)
     api_router.include_router(optimize_router)
+    api_router.include_router(skills_router)
     return api_router
